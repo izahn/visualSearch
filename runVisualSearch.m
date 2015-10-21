@@ -6,7 +6,67 @@ function runVisualSearch(subID)
 
 %% Set up the experiment
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-settingsVisualSearch; % Load all the settings from the file
+% settingsVisualSearch; % Load all the settings from the file
+
+%% Settings for image sequence experiment
+
+% Target and distractor images (these are in the "images" folder)
+imTarget = 'T.png';
+% imTarget_y = 'T_yellow.jpg';
+% imTarget_r = 'T_red.jpg';
+% imTarget_g = 'T_green.jpg';
+% imTarget_b = 'T_blue.jpg';
+imDistractor = 'L.png';
+% imDistractor_y = 'L_yellow.jpg';
+% imDistractor_r = 'L_red.jpg';
+% imDistractor_g = 'L_green.jpg';
+% imDistractor_b = 'L_blue.jpg';
+% I will need to build a list with these images. For distractors something like this:
+% distractor_list = [imDistractor_y, imDistractor_r, imDistractor_g, imDistractor_b];
+% x = distractor_list;
+% distractor_list =  rand();
+% for i=1:11;
+% if x < .25;
+%   'imDistractor_y'
+% elseif x < .5;
+%   'imDistractor_r'
+% elseif x < .75;
+%   'imDistractor_g'
+% elseif x < .75;
+% 'imDistractor_b'
+% end;
+
+% If this is correct, I build it this way for targets too.
+
+% Randomly rotate distractors? (1 = yes, 0 = no)
+rotateDistractor = 1;
+
+% Set size (number of items to display in each search display).
+setSize = 12; % see line 132 of makeSearchDisplay
+
+% Number of trials per block
+nTrials = 24;
+nBlocks = 16;
+
+% Response keys (for no subject response use empty list)
+% 'z' for rotated 'T's to the left and 'm' for rotated 'T's to the right
+responseKeys = {'z','m'};
+%responseKeys = {};
+
+% Background color: choose a number from 0 (black) to 255 (white): 192 for
+% grey
+backgroundColor = 192;
+
+% Text color: choose a number from 0 (black) to 255 (white)
+textColor = 255;
+
+% How long to wait (in seconds) for subject response before the trial times out
+trialTimeout = 0.7;
+
+% How long to pause in between trials (if 0, the experiment will wait for
+% the subject to press a key before every trial)
+timeBetweenTrials = 0;
+
 rand('state', sum(100*clock)); % Initialize the random number generator
 
 % Keyboard setup
@@ -33,11 +93,11 @@ Screen('Flip', window1);
 
 % Get the image files for the experiment
 imageFolder = 'images';
-imageTarget = imread([imageFolder '/' imageTarget]);
-imageDistractor = imread([imageFolder '/' imageDistractor]);
+imageTarget = imread(strcat(imageFolder, '/', imTarget));
+imageDistractor = imread(strcat(imageFolder, '/', imDistractor));
 
 % Set up the trials
-setSize = repmat(12, [nTrials 1]);
+setSize = repmat(setSize, [nTrials 1]);
 targetPresent = ones(nTrials, 1);
 targetDirec = rand(nTrials, nBlocks)<0.50;
 
@@ -60,6 +120,7 @@ fprintf(outputfile, 'subID\t block\t trial\t display\t targetDirec\t setSize\t t
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Start screen
+Screen('TextFont', window1, '-misc-fixed-bold-r-normal--13-100-100-100-c-70-iso8859-1') % CHAMGEME!!!
 Screen('DrawText',window1,'You will see "T" and "L" stimuli. Your job is to search for a rotated "T" stimuli as quickly and accurately as possible. Press the "z" key for rotated "T"s to the left and the key "m" for rotated keys to the right. You may receive a mild electric stimulation if your reponse is not made before the "T" stimulus disappears. Press the space bar to begin', (W/2-300), (H/2), textColor);
 Screen('Flip',window1)
 % Wait for subject to press spacebar
@@ -85,7 +146,7 @@ for b = 1:nBlocks
         t = randomizedTrials(n,b);
         
         % Make search display
-        img = makeSearchDisplay(itemLocs(t,:),targetDirec(n,b),imTarget,imDistractor,setSize(t),targetPresent(t),rotateDistractor);
+        img = makeSearchDisplay(itemLocs(t,:),targetDirec(n,b),imageTarget,imageDistractor,setSize(t),targetPresent(t),rotateDistractor,rect,backgroundColor);
         imageDisplay = Screen('MakeTexture', window1, img);
 
         % Calculate image position (center of the screen)
